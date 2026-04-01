@@ -223,7 +223,7 @@ impl HttpClient {
         headers: Option<&HttpHeaders>,
     ) -> Result<HttpResponse, String> {
         // تنفيذ الطلب باستخدام reqwest إذا كان متاحاً
-        #[cfg(feature = "network")]
+        #[cfg(feature = "client")]
         {
             use reqwest::blocking::Client;
             use std::time::Duration;
@@ -293,7 +293,7 @@ impl HttpClient {
             })
         }
 
-        #[cfg(not(feature = "network"))]
+        #[cfg(not(feature = "client"))]
         {
             Err("ميزة الشبكة غير مفعّلة. أضف --features network عند البناء.".to_string())
         }

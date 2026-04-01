@@ -193,7 +193,7 @@ pub struct Route {
 
 // ===== خادم HTTP حقيقي (مع feature http-server) =====
 
-#[cfg(feature = "http-server")]
+#[cfg(feature = "server")]
 pub mod real_server {
     use super::*;
     use axum::{
@@ -324,7 +324,7 @@ pub mod real_server {
 // ===== خادم HTTP (الواجهة الموحدة) =====
 
 /// خادم HTTP
-#[cfg(feature = "http-server")]
+#[cfg(feature = "server")]
 pub struct HttpServer {
     /// المنفذ
     pub port: u16,
@@ -338,7 +338,7 @@ pub struct HttpServer {
     real_server: real_server::RealHttpServer,
 }
 
-#[cfg(not(feature = "http-server"))]
+#[cfg(not(feature = "server"))]
 pub struct HttpServer {
     /// المنفذ
     pub port: u16,
@@ -353,7 +353,7 @@ pub struct HttpServer {
 impl HttpServer {
     /// إنشاء خادم جديد
     pub fn new() -> Self {
-        #[cfg(feature = "http-server")]
+        #[cfg(feature = "server")]
         {
             let real = real_server::RealHttpServer::new();
             Self {
@@ -365,7 +365,7 @@ impl HttpServer {
             }
         }
 
-        #[cfg(not(feature = "http-server"))]
+        #[cfg(not(feature = "server"))]
         {
             Self {
                 port: 8080,
@@ -379,7 +379,7 @@ impl HttpServer {
     /// تعيين المنفذ
     pub fn port(mut self, port: u16) -> Self {
         self.port = port;
-        #[cfg(feature = "http-server")]
+        #[cfg(feature = "server")]
         {
             self.real_server = self.real_server.port(port);
         }
@@ -389,7 +389,7 @@ impl HttpServer {
     /// تعيين المضيف
     pub fn host(mut self, host: &str) -> Self {
         self.host = host.to_string();
-        #[cfg(feature = "http-server")]
+        #[cfg(feature = "server")]
         {
             self.real_server = self.real_server.host(host);
         }
@@ -500,7 +500,7 @@ impl HttpServer {
 
     /// تشغيل الخادم (متزامن)
     pub fn run(&self) -> Result<(), String> {
-        #[cfg(feature = "http-server")]
+        #[cfg(feature = "server")]
         {
             println!("✅ [PRODUCTION] تشغيل الخادم الحقيقي (axum + tokio)");
 
@@ -511,7 +511,7 @@ impl HttpServer {
             rt.block_on(async { self.real_server.run_async().await })
         }
 
-        #[cfg(not(feature = "http-server"))]
+        #[cfg(not(feature = "server"))]
         {
             println!("⚠️ [SIMULATION] وضع المحاكاة - axum غير مفعّل");
             println!("📝 لتفعيل الخادم الحقيقي، استخدم: --features http-server");
@@ -525,7 +525,7 @@ impl HttpServer {
     }
 
     /// تشغيل الخادم (غير متزامن)
-    #[cfg(feature = "http-server")]
+    #[cfg(feature = "server")]
     pub async fn run_async(&self) -> Result<(), String> {
         self.real_server.run_async().await
     }
